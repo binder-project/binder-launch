@@ -1,0 +1,29 @@
+{
+  "name": "binder-launch",
+  "version": "1.0.0",
+  "description": "Scripts for creating preconfigured Binder clusters with one command ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/binder-project/binder-launch.git"
+  },
+  "keywords": [
+    "binder",
+    "launch",
+    "gce",
+    "kubernetes"
+  ],
+  "author": "Andrew Osheroff",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/binder-project/binder-launch/issues"
+  },
+  "homepage": "https://github.com/binder-project/binder-launch#readme",
+  "dependencies": {
+    "prompt": "^1.0.0",
+    "shelljs": "^0.6.0"
+  }
+}
