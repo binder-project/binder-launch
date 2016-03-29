@@ -4,7 +4,9 @@
   "description": "Scripts for creating preconfigured Binder clusters with one command ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "launch": "node gce/launch.js",
+    "destroy": "node gce/destroy.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,8 @@
   },
   "homepage": "https://github.com/binder-project/binder-launch#readme",
   "dependencies": {
+    "async": "^2.0.0-rc.2",
+    "lodash.some": "^4.2.1",
     "prompt": "^1.0.0",
     "shelljs": "^0.6.0"
   }
