@@ -1,0 +1,8 @@
+---
+# Start both a Binder API server and a Kubernetes cluster
+
+# TODO: replace this with your desired provider
+- include: gce/start.yml
+
+# Include the API server configuration playbook
+- include: common/start.yml

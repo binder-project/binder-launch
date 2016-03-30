@@ -1,0 +1,57 @@
+---
+# These tasks will configure the Binder API server and a Kubernetes cluster
+
+- name: Install Docker
+  hosts: binder_instances
+  roles:
+    - angstwad.docker_ubuntu
+
+- name: Install Docker-Compose
+  hosts: binder_instances
+  tasks:
+    - name: Installing docker-compose with pip
+      pip: 
+        name: docker-compose
+        state: present
+
+- name: Install and start Kubernetes 1.2
+  hosts: binder_instances
+  vars_prompt:
+    name: minions
+    prompt: How many nodes would you like in your Kubernetes cluster?
+    default: 1
+  tasks:
+    - name: Downloading Kubernetes
+      shell: wget https://github.com/kubernetes/kubernetes/releases/download/v1.2.0/kubernetes.tar.gz
+    - name: Extracting/Installing Kubernetes
+      shell: tar xvf kubernetes.tar.gz && echo "PATH=$PATH:~/kubernetes/cluster" >> ~/.bashrc
+    - name: Starting Kubernetes
+      environment:
+        NUM_MINIONS: "{{ minions }}"
+        MINION_DISK_SIZE: 100GB
+        KUBE_ADMISSION_CONTROL: NamespaceLifecycle, LimitRanger, ResourceQuota, PersistentVolumeLabel
+      shell: kubernetes/cluster/kube-up.sh
+
+- name: Install NVM, Node and NPM
+  hosts: binder_instances
+  tasks:
+    - name: Installing NVM
+      shell: wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
+    - name: Using Node 5.7.1
+      shell: nvm install 5.7.1 && nvm use 5.7.1
+
+- name: Download, configure, and start binder-control
+  hosts: binder_instances
+  tasks:
+    - name: Cloning repository
+      git: 
+        repo: https://github.com/binder-project/binder-control
+        dest: binder-control/
+        version: release-0.9
+    - name: NPM installation
+      shell: cd ~/binder-control && npm i
+    - name: Starting db/logging background services
+      shell: binder-control start-service logging && binder-control start-service db
+    - name: Start all Binder servers
+      shell: binder-control start-all
+

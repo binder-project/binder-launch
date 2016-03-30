@@ -1,0 +1,40 @@
+- name: Create GCE instances
+  hosts: local
+  gather_facts: no
+  connection: local
+  vars_prompt:
+    - name: machine_type
+      prompt: "What GCE instance size should your API server be?"
+      default: n1-standard-1
+    - name: zone
+      prompt: "What zone should your cluster be created in?"
+      default: us-east1-b
+  vars:
+    names: binder-api
+    instance_tags: binder-api
+    image: ubuntu
+  tasks:
+    - name: Create instance VM
+      local_action: gce instance_names="{{ names }}" 
+                    tags="{{ instance_tags }}" machine_type="{{ machine_type }}"
+                    image="{{ image }}" zone="{{ zone }}"
+      register: gce
+    - name: Wait for SSH to come up
+      local_action: wait_for host="{{ item.public_ip }}" port=22 delay=10
+                    timeout=60 state=started
+      with_items: gce.instance_data
+    
+    - name: Add host to groupname
+      add_host: hostname={{ item.public_ip }} groupname=binder_instances
+      with_items: gce.instance_data
+
+- name: Create firewall rules to allow Binder APIs
+  hosts: local
+  gather_facts: no
+  vars:
+    allowed: "tcp:80,8082,8084,2999,2121,8053,22"
+    target_tags: ["binder-api"]
+  tasks:
+    - name: Allow HTTP
+      local_action: gce_net fwname=binder-api name=default allowed={{ allowed }}
+                    target_tags={{ target_tags }}

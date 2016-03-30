@@ -1,0 +1,19 @@
+---
+# Stop both the Binder API server and the Kubernetes cluster
+
+# First shut down the Kubernetes cluster
+- include: common/stop.yml
+
+- name: Destoy API server instance on a cloud provider
+  hosts: localhost
+  vars_prompt: 
+    name: "provider"
+    prompt: "Which cloud provider would you like to use?"
+    default: "gce"
+  tasks: 
+    - include: gce/stop.yml
+      when: provider == "gce"
+    - shell: echo "GCE is the only supported cloud provider for now!"
+      when: provider != "gce"
+
+
